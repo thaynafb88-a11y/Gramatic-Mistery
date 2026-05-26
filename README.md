@@ -144,6 +144,11 @@ Todos os sons são sintetizados com **Web Audio API**, sem arquivos externos:
 
 ---
 
-## 👩‍💻 Autora
+## 👩‍💻 Autoras
+Giovanna de Sousa - 761996
+Leticia Cavalcante - 761536
+Jackeline Neris - 761671
+Sofia Fernandes - 761951
+Thayná Ferreira - 762030
 
 Feito com 💜 como projeto de aprendizado de inglês para crianças.
