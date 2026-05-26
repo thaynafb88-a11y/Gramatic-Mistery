@@ -1,0 +1,399 @@
+/* ═══════════════════════════════════════════════════
+   VARIÁVEIS CSS GLOBAIS (Design Tokens)
+   Definidas em :root para serem reutilizadas em
+   qualquer parte do CSS, facilitando a manutenção
+   da paleta de cores e sombras do jogo.
+═══════════════════════════════════════════════════ */
+:root{
+  /* Paleta de cores */
+  --yellow:#FFF6C9;     /* Fundo principal amarelo-claro */
+  --pink:#FF9EC4;       /* Destaque rosa (botão principal, sombras) */
+  --blue:#8ED8FF;       /* Azul para botões secundários */
+  --green:#A8E6A3;      /* Verde para feedback de acerto */
+  --purple:#C7B6FF;     /* Roxo para títulos e bordas ativas */
+  --orange:#FFA94D;     /* Laranja para pontuações e estrelas */
+  --red:#FF6B6B;        /* Vermelho para feedback de erro */
+  --white:#FFFFFF;      /* Branco puro para cards e popups */
+  --gray-light:#EAEAEA; /* Cinza claro para bordas neutras */
+  --gray-dark:#555555;  /* Cinza escuro para textos secundários */
+
+  /* Sombras reutilizáveis */
+  --shadow:0 6px 20px rgba(0,0,0,0.12);     /* Sombra suave dos cards */
+  --shadow-btn:0 4px 0px rgba(0,0,0,0.18);  /* Sombra 3D inferior dos botões */
+}
+
+
+/* ═══════════════════════════════════════════════════
+   RESET UNIVERSAL
+   Remove margens e paddings padrão do browser e
+   adota box-sizing border-box em todos os elementos,
+   garantindo que padding e borda não aumentem o tamanho.
+═══════════════════════════════════════════════════ */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   CORPO DA PÁGINA
+═══════════════════════════════════════════════════ */
+body{
+  font-family:'Nunito',sans-serif; /* Fonte padrão do corpo */
+  background:var(--yellow);        /* Fundo amarelo-claro em toda a página */
+  min-height:100vh;                /* Garante que o fundo cubra a tela inteira */
+  overflow-x:hidden;               /* Evita scroll horizontal indesejado */
+  position:relative;               /* Contexto para os elementos decorativos fixos */
+}
+
+
+/* ═══════════════════════════════════════════════════
+   ELEMENTOS DECORATIVOS DE FUNDO
+   Emojis flutuantes fixos na tela que criam o
+   "papel de parede animado" do jogo.
+   Não capturam cliques nem ficam na frente do conteúdo.
+═══════════════════════════════════════════════════ */
+.deco{
+  position:fixed;          /* Fixo na tela, não rola com o conteúdo */
+  pointer-events:none;     /* Cliques passam através deles */
+  z-index:0;               /* Fica atrás de todo o conteúdo */
+  animation:float 4s ease-in-out infinite; /* Flutuação contínua */
+  font-size:2rem;
+  opacity:0.28;            /* Semi-transparente para não distrair */
+}
+
+/* Posicionamento individual de cada emoji decorativo */
+.deco:nth-child(1){ top:5%;    left:3%;  }
+.deco:nth-child(2){ top:15%;   right:4%; }
+.deco:nth-child(3){ top:60%;   left:2%;  }
+.deco:nth-child(4){ bottom:10%;right:3%; }
+.deco:nth-child(5){ bottom:25%;left:5%;  }
+.deco:nth-child(6){ top:40%;   right:2%; }
+.deco:nth-child(7){ top:30%;   left:8%;  }
+.deco:nth-child(8){ bottom:40%;right:7%; }
+
+/* Animação de flutuação: sobe 14px e gira 8° levemente */
+@keyframes float{
+  0%,100%{
+    transform:translateY(0) rotate(0deg);  /* Posição original */
+  }
+  50%{
+    transform:translateY(-14px) rotate(8deg); /* Ponto mais alto */
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   SISTEMA DE TELAS (SPA — Single Page Application)
+   Apenas a tela com classe "active" fica visível.
+   Todas as demais ficam ocultas com display:none.
+═══════════════════════════════════════════════════ */
+.screen{
+  display:none;            /* Oculta por padrão */
+  min-height:100vh;        /* Cada tela ocupa pelo menos a altura da tela */
+  flex-direction:column;   /* Empilha os elementos verticalmente */
+  align-items:center;      /* Centraliza horizontalmente */
+  justify-content:center;  /* Centraliza verticalmente */
+  padding:20px 16px;
+  position:relative;
+  z-index:1;               /* Fica na frente das decorações (z-index:0) */
+}
+
+/* Tela ativa: exibida como flexbox */
+.screen.active{
+  display:flex;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   TELA DE LOGIN
+═══════════════════════════════════════════════════ */
+
+/* Card branco centralizado que contém todo o formulário de login */
+.login-wrap{
+  background:var(--white);
+  border-radius:32px;   /* Bordas bem arredondadas, visual infantil */
+  padding:36px 28px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  max-width:360px;
+  width:100%;           /* Ocupa 100% até o limite de 360px */
+}
+
+/* Urso decorativo com animação de pulo no topo do card */
+.login-bear{
+  font-size:5rem;
+  animation:bounce 1.2s infinite; /* Pulo contínuo */
+  display:block;
+  margin-bottom:6px;
+}
+
+/* Animação de pulo: sobe 10px e volta */
+@keyframes bounce{
+  0%,100%{
+    transform:translateY(0);   /* Posição original */
+  }
+  50%{
+    transform:translateY(-10px); /* Ponto mais alto do pulo */
+  }
+}
+
+/* Título principal do login com sombra rosa (efeito 3D) */
+.login-title{
+  font-family:'Baloo 2',cursive;
+  font-size:2.2rem;
+  font-weight:800;
+  color:#7B4EA0;                      /* Roxo escuro */
+  text-shadow:3px 3px 0 var(--pink);  /* Sombra rosa deslocada */
+  line-height:1.1;
+}
+
+/* Subtítulo menor e discreto abaixo do título */
+.login-sub{
+  font-size:0.9rem;
+  color:#bbb;
+  margin:12px 0 20px;
+}
+
+/* Label reutilizável para campos de formulário */
+.label{
+  font-family:'Baloo 2',cursive;
+  font-size:0.95rem;
+  color:#999;
+  margin-bottom:8px;
+  font-weight:700;
+}
+
+/* Campo de texto para o nome do jogador */
+.name-input{
+  width:100%;
+  padding:12px 18px;
+  border-radius:20px;
+  border:3px solid var(--purple); /* Borda roxa */
+  outline:none;                   /* Remove o contorno padrão do browser */
+  background:var(--yellow);
+
+  font-family:'Baloo 2',cursive;
+  font-size:1.2rem;
+  text-align:center;              /* Texto centralizado no campo */
+
+  margin-bottom:18px;
+}
+
+/* Fileira de botões de seleção de avatar */
+.avatar-row{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;       /* Quebra linha em telas muito estreitas */
+  margin-bottom:18px;
+}
+
+/* Cada botão de avatar: círculo com emoji centralizado */
+.avatar-btn{
+  width:52px;
+  height:52px;
+  border-radius:50%;                /* Formato circular */
+  border:3px solid var(--gray-light);
+  background:var(--yellow);
+
+  font-size:2rem;
+  cursor:pointer;
+  transition:0.2s; /* Transição suave para hover e seleção */
+}
+
+/* Hover e estado selecionado: aumenta levemente e destaca em roxo */
+.avatar-btn:hover,
+.avatar-btn.selected{
+  transform:scale(1.12);
+  border-color:var(--purple);
+  background:var(--purple);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   SISTEMA DE BOTÕES
+   Classe base .btn com variações de cor.
+   A sombra inferior cria efeito de botão 3D.
+═══════════════════════════════════════════════════ */
+.btn{
+  border:none;
+  border-radius:50px; /* Formato de pílula */
+  padding:14px 36px;
+  cursor:pointer;
+
+  font-family:'Baloo 2',cursive;
+  font-size:1.2rem;
+  font-weight:700;
+
+  box-shadow:var(--shadow-btn); /* Sombra 3D na parte inferior */
+  transition:0.2s;
+}
+
+/* Efeito de pressionar: desce 3px simulando o botão sendo pressionado */
+.btn:active{
+  transform:translateY(3px);
+}
+
+/* Botão principal de jogar — rosa */
+.btn-play{
+  background:var(--pink);
+  color:white;
+}
+
+.btn-play:hover{
+  background:#ff80b0;    /* Rosa um pouco mais escuro no hover */
+  transform:scale(1.05);
+}
+
+/* Botão do Modo Mistério — degradê de roxo para azul */
+.btn-mystery{
+  background:linear-gradient(135deg,#C7B6FF,#8ED8FF);
+  color:#4a2d8a; /* Roxo escuro para contraste com o degradê claro */
+}
+
+/* Botão de configurações — azul */
+.btn-settings{
+  background:var(--blue);
+  color:white;
+}
+
+/* Botão de ranking — roxo */
+.btn-ranking{
+  background:var(--purple);
+  color:white;
+}
+
+/* Modificador utilitário: faz o botão ocupar 100% da largura do pai */
+.full{
+  width:100%;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   TELA HOME
+═══════════════════════════════════════════════════ */
+
+/* Área do logo centralizada no topo da home */
+.logo-area{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+/* Urso grande com animação de pulo (reutiliza @keyframes bounce) */
+.logo-bear{
+  font-size:5rem;
+  animation:bounce 1.2s infinite;
+}
+
+/* Título grande com dupla sombra: rosa + escura sutil */
+.logo-title{
+  font-family:'Baloo 2',cursive;
+  font-size:2.8rem;
+  font-weight:800;
+  color:#7B4EA0;
+
+  text-shadow:
+    3px 3px 0 var(--pink),          /* Sombra rosa (efeito 3D principal) */
+    5px 5px 0 rgba(0,0,0,0.08);     /* Sombra escura sutil por trás */
+}
+
+/* Subtítulo em rosa abaixo do título */
+.logo-subtitle{
+  color:var(--pink);
+  margin-top:6px;
+}
+
+/* Saudação personalizada com nome e avatar do jogador */
+.greeting-name{
+  margin-top:8px;
+  color:#7B4EA0;
+  font-family:'Baloo 2',cursive;
+  font-weight:700;
+}
+
+/* Grupo de botões secundários (Config e Ranking) lado a lado */
+.home-actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+
+/* Linha de estrelas totais na home */
+.stars-home{
+  margin-top:18px;
+  color:#999;
+  font-family:'Baloo 2',cursive;
+}
+
+/* O número de estrelas em laranja e negrito */
+.stars-home span{
+  color:var(--orange);
+  font-weight:800;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   POPUP DE FEEDBACK
+   Aparece brevemente após acertos, erros e ações.
+   É composto por dois elementos:
+     1. overlay  — escurece o fundo
+     2. popup    — card branco centralizado com animação
+═══════════════════════════════════════════════════ */
+
+/* Overlay: cobre toda a tela com fundo semitransparente */
+.feedback-overlay{
+  position:fixed;
+  inset:0;                        /* Equivale a top/right/bottom/left:0 */
+  background:rgba(0,0,0,0.25);   /* Escurecimento suave */
+  z-index:99;                     /* Fica acima de todo o conteúdo */
+  display:none;                   /* Oculto por padrão */
+}
+
+/* Classe adicionada via JS para exibir o overlay */
+.feedback-overlay.show{
+  display:block;
+}
+
+/* Card do popup: posicionado no centro da tela via transform */
+.feedback-popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+
+  /* Centraliza e começa com escala 0 (invisível) */
+  transform:translate(-50%,-50%) scale(0);
+
+  background:white;
+  border-radius:28px;
+  padding:30px 36px;
+  text-align:center;
+
+  z-index:100;   /* Acima do overlay */
+
+  transition:0.3s; /* Transição suave da escala */
+}
+
+/* Classe adicionada via JS: expande para escala 1 (visível) */
+.feedback-popup.show{
+  transform:translate(-50%,-50%) scale(1);
+}
+
+/* Emoji grande no topo do popup */
+.fb-emoji{
+  font-size:4rem;
+}
+
+/* Texto principal do popup (ex: "Acertou!", "Quase!") */
+.fb-text{
+  font-family:'Baloo 2',cursive;
+  font-size:1.8rem;
+  color:#7B4EA0;
+}
+
+/* Subtexto menor abaixo do texto principal (ex: "+10 ⭐") */
+.fb-sub{
+  color:#aaa;
+  margin-top:4px;
+}

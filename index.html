@@ -1,0 +1,1900 @@
+
+<!DOCTYPE html>
+<!-- Documento HTML5 com idioma definido como português do Brasil -->
+<html lang="pt-BR">
+<head>
+  <!-- Codificação de caracteres UTF-8 para suportar acentos e emojis -->
+  <meta charset="UTF-8">
+  <!-- Viewport responsivo: impede zoom automático em dispositivos móveis -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gramatic Mistery 🐻</title>
+  <!-- Importa as fontes Baloo 2 (títulos/botões) e Nunito (corpo) do Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════
+   VARIÁVEIS CSS GLOBAIS (Design Tokens)
+   Definidas em :root para serem reutilizadas em todo o CSS
+═══════════════════════════════════════════════════ */
+:root {
+  /* Paleta de cores do jogo */
+  --yellow:#FFF6C9;   /* Fundo principal amarelo-claro */
+  --pink:#FF9EC4;     /* Cor de destaque rosa */
+  --blue:#8ED8FF;     /* Cor azul para botões e detalhes */
+  --green:#A8E6A3;    /* Verde para feedback de acerto */
+  --purple:#C7B6FF;   /* Roxo para títulos e bordas */
+  --orange:#FFA94D;   /* Laranja para pontuações */
+  --red:#FF6B6B;      /* Vermelho para feedback de erro */
+  --white:#FFFFFF;    /* Branco puro para cards */
+  --gray-light:#EAEAEA; /* Cinza claro para bordas neutras */
+  --gray-dark:#555555;  /* Cinza escuro para textos secundários */
+  /* Sombras reutilizáveis */
+  --shadow:0 6px 20px rgba(0,0,0,0.12);    /* Sombra dos cards */
+  --shadow-btn:0 4px 0px rgba(0,0,0,0.18); /* Sombra 3D dos botões */
+}
+
+/* Reset universal: remove margens, paddings e usa box-sizing border-box */
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* Corpo da página: fonte padrão Nunito, fundo amarelo, sem scroll horizontal */
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--yellow);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative; /* Necessário para os elementos decorativos fixos */
+}
+
+/* ═══════════════════════════════════════════════════
+   ELEMENTOS DECORATIVOS DE FUNDO (emojis flutuantes)
+   São fixos na tela, não capturam cliques (pointer-events:none)
+   e ficam atrás do conteúdo (z-index:0)
+═══════════════════════════════════════════════════ */
+.deco{
+  position:fixed;
+  pointer-events:none; /* Não interfere em cliques do usuário */
+  z-index:0;           /* Fica atrás de todo o conteúdo */
+  animation:float 4s ease-in-out infinite; /* Animação de flutuação contínua */
+  font-size:2rem;
+  opacity:0.28;        /* Semi-transparente para não distrair */
+}
+/* Posicionamento individual de cada emoji decorativo */
+.deco:nth-child(1){top:5%;left:3%;animation-delay:0s}
+.deco:nth-child(2){top:15%;right:4%;animation-delay:1s}
+.deco:nth-child(3){top:60%;left:2%;animation-delay:2s}
+.deco:nth-child(4){bottom:10%;right:3%;animation-delay:0.5s}
+.deco:nth-child(5){bottom:25%;left:5%;animation-delay:1.5s}
+.deco:nth-child(6){top:40%;right:2%;animation-delay:3s}
+.deco:nth-child(7){top:30%;left:8%;animation-delay:2.5s}
+.deco:nth-child(8){bottom:40%;right:7%;animation-delay:0.8s}
+
+/* Keyframe: sobe e gira levemente, simulando flutuação */
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-14px) rotate(8deg)}
+}
+
+/* ═══════════════════════════════════════════════════
+   SISTEMA DE TELAS (SPA — Single Page Application)
+   Apenas a tela com classe "active" fica visível.
+   Todas as demais ficam ocultas com display:none.
+═══════════════════════════════════════════════════ */
+.screen{
+  display:none;            /* Oculta por padrão */
+  min-height:100vh;        /* Ocupa pelo menos toda a altura da tela */
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px 16px;
+  position:relative;
+  z-index:1;               /* Fica na frente das decorações */
+  animation:fadeIn 0.4s ease; /* Animação de entrada ao ativar */
+}
+/* Tela ativa: exibe como flexbox */
+.screen.active{display:flex}
+
+/* Keyframe: entra deslizando de baixo para cima com fade */
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ═══════════════════════════════════════════════════
+   TELA DE LOGIN
+═══════════════════════════════════════════════════ */
+/* Card branco centralizado com bordas arredondadas */
+.login-wrap{
+  background:var(--white);
+  border-radius:32px;
+  padding:36px 28px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  max-width:360px;
+  width:100%;
+}
+/* Urso animado que pula no topo do login */
+.login-bear{font-size:5rem;animation:bounce 1.2s infinite;margin-bottom:6px;display:block}
+
+/* Animação de pulo do urso */
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+}
+
+/* Título principal do login com sombra colorida */
+.login-title{
+  font-family:'Baloo 2',cursive;
+  font-size:2.2rem;
+  font-weight:800;
+  color:#7B4EA0;                       /* Roxo escuro */
+  text-shadow:3px 3px 0 var(--pink);   /* Sombra rosa para efeito 3D */
+  line-height:1.1;
+  margin-bottom:4px;
+}
+/* Subtítulo menor e cinza */
+.login-sub{font-size:0.9rem;color:#bbb;margin-bottom:20px;font-weight:600}
+
+/* Campo de texto para o nome do jogador */
+.name-input{
+  font-family:'Baloo 2',cursive;
+  font-size:1.3rem;
+  font-weight:700;
+  color:var(--gray-dark);
+  border:3px solid var(--purple); /* Borda roxa */
+  border-radius:20px;
+  padding:12px 18px;
+  width:100%;
+  text-align:center;
+  background:var(--yellow);
+  outline:none;
+  margin-bottom:16px;
+  transition:border-color 0.2s,box-shadow 0.2s; /* Transição suave ao focar */
+}
+/* Estado de foco: borda rosa com brilho externo */
+.name-input:focus{
+  border-color:var(--pink);
+  box-shadow:0 0 0 4px rgba(255,158,196,0.25);
+}
+
+/* Fileira de botões de seleção de avatar */
+.avatar-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+
+/* Cada botão de avatar: círculo com emoji */
+.avatar-btn{
+  font-size:2rem;
+  background:var(--yellow);
+  border:3px solid var(--gray-light);
+  border-radius:50%; /* Formato circular */
+  width:52px;
+  height:52px;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+/* Hover e estado selecionado: borda roxa com escala aumentada */
+.avatar-btn:hover,.avatar-btn.selected{
+  border-color:var(--purple);
+  background:var(--purple);
+  transform:scale(1.12);
+}
+
+/* ═══════════════════════════════════════════════════
+   TELA HOME
+═══════════════════════════════════════════════════ */
+.logo-area{text-align:center;margin-bottom:8px}
+/* Urso grande com animação de pulo na home */
+.logo-bear{font-size:5rem;animation:bounce 1.2s infinite}
+/* Título grande com dupla sombra (rosa + sombra escura) */
+.logo-title{
+  font-family:'Baloo 2',cursive;
+  font-size:2.8rem;
+  font-weight:800;
+  color:#7B4EA0;
+  text-shadow:3px 3px 0 var(--pink),5px 5px 0 rgba(0,0,0,0.08);
+  letter-spacing:1px;
+  line-height:1.1;
+}
+.logo-subtitle{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--pink);font-weight:600;margin-top:4px}
+/* Saudação com o nome do jogador */
+.greeting-name{font-family:'Baloo 2',cursive;font-size:1.05rem;color:#7B4EA0;font-weight:700;margin-top:6px}
+
+/* ═══════════════════════════════════════════════════
+   SISTEMA DE BOTÕES
+   Classe base .btn com variações de cor e tamanho
+═══════════════════════════════════════════════════ */
+.btn{
+  font-family:'Baloo 2',cursive;
+  font-size:1.3rem;
+  font-weight:700;
+  border:none;
+  border-radius:50px; /* Formato de pílula */
+  padding:14px 36px;
+  cursor:pointer;
+  transition:all 0.15s;
+  box-shadow:var(--shadow-btn); /* Sombra 3D embaixo */
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  letter-spacing:0.5px;
+}
+/* Efeito de pressionar: desce 3px e perde sombra */
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,0.18)}
+
+/* Botão principal de jogar — rosa, grande */
+.btn-play{background:var(--pink);color:#fff;font-size:1.6rem;padding:18px 60px;margin:12px 0}
+.btn-play:hover{background:#ff80b0;transform:scale(1.05)}
+
+/* Botão do Modo Mistério — degradê roxo/azul */
+.btn-mystery{background:linear-gradient(135deg,#C7B6FF,#8ED8FF);color:#4a2d8a;font-size:1.1rem;padding:14px 28px}
+.btn-mystery:hover{transform:scale(1.04)}
+
+/* Botões secundários de navegação */
+.btn-settings{background:var(--blue);color:#fff;font-size:1rem;padding:10px 24px}
+.btn-ranking{background:var(--purple);color:#fff;font-size:1rem;padding:10px 24px}
+.btn-back{background:var(--gray-light);color:var(--gray-dark);font-size:1rem;padding:10px 24px}
+.btn-back:hover{background:#d5d5d5}
+/* Botão verde para ação positiva (ex: ir para o Quiz) */
+.btn-green{background:var(--green);color:#3a7a37}
+.btn-green:hover{background:#8fd98a}
+
+/* Grupo de ações na home (Config e Ranking lado a lado) */
+.home-actions{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+
+/* ═══════════════════════════════════════════════════
+   TÍTULO DAS TELAS
+═══════════════════════════════════════════════════ */
+.screen-title{
+  font-family:'Baloo 2',cursive;
+  font-size:1.9rem;
+  font-weight:800;
+  color:#7B4EA0;
+  text-align:center;
+  text-shadow:2px 2px 0 rgba(255,255,255,0.7); /* Sombra branca para legibilidade */
+  margin-bottom:6px;
+}
+
+/* ═══════════════════════════════════════════════════
+   ABAS DE MODO (Aprender / Quiz)
+═══════════════════════════════════════════════════ */
+.mode-tabs{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap;justify-content:center}
+.mode-tab{
+  font-family:'Baloo 2',cursive;
+  font-size:0.9rem;
+  font-weight:700;
+  border:2px solid var(--gray-light);
+  background:var(--white);
+  border-radius:20px;
+  padding:7px 16px;
+  cursor:pointer;
+  transition:all 0.2s;
+  color:var(--gray-dark);
+}
+/* Aba ativa ou hovered: fundo roxo com texto branco */
+.mode-tab.active,.mode-tab:hover{background:var(--purple);border-color:var(--purple);color:#fff}
+
+/* ═══════════════════════════════════════════════════
+   GRADE DE CATEGORIAS (2 colunas)
+═══════════════════════════════════════════════════ */
+.category-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr; /* Duas colunas iguais */
+  gap:10px;
+  width:100%;
+  max-width:400px;
+  margin:12px 0;
+}
+/* Card de categoria: flex coluna centralizado */
+.category-card{
+  background:var(--white);
+  border-radius:18px;
+  padding:14px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:all 0.2s;
+  border:3px solid transparent; /* Borda colorida definida por variação */
+  font-family:'Baloo 2',cursive;
+  font-size:1rem;
+  font-weight:700;
+  text-align:center;
+}
+.category-card:hover{transform:scale(1.05)} /* Leve zoom no hover */
+/* Variações de cor por categoria */
+.category-card.colors {border-color:var(--pink);  color:#c0457a}
+.category-card.animals{border-color:var(--green); color:#3a7a37}
+.category-card.fruits {border-color:var(--orange);color:#c06a00}
+.category-card.numbers{border-color:var(--blue);  color:#2a7aaa}
+.category-card.shapes {border-color:var(--purple);color:#6a2aaa}
+.category-card.family {border-color:#FFD700;      color:#a07700} /* Dourado para família */
+
+/* Ícone grande dentro do card de categoria */
+.category-card .cat-icon{font-size:2.4rem}
+/* Badges de estrela abaixo do nome da categoria */
+.category-card .star-badge{
+  background:var(--yellow);
+  border-radius:10px;
+  padding:2px 7px;
+  font-size:0.72rem;
+  color:#a07c00;
+  font-weight:700;
+}
+
+/* ═══════════════════════════════════════════════════
+   CARDS DE APRENDIZADO (tela Learn)
+   Grade 2x3 com animação de entrada escalonada
+═══════════════════════════════════════════════════ */
+.learn-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  width:100%;
+  max-width:380px;
+  margin:12px 0;
+}
+.learn-card{
+  background:var(--white);
+  border-radius:20px;
+  padding:16px 8px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:all 0.2s;
+  border:3px solid var(--gray-light);
+  animation:popIn 0.4s ease backwards; /* Animação de "brotação" */
+}
+.learn-card:hover{transform:scale(1.06);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+
+/* Keyframe: escala de 0.7 para 1 com fade */
+@keyframes popIn{
+  from{opacity:0;transform:scale(0.7)}
+  to{opacity:1;transform:scale(1)}
+}
+
+/* Elementos internos dos cards de aprendizado */
+.learn-card .card-emoji{font-size:2.8rem;margin-bottom:6px;display:block}
+.learn-card .card-en{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#7B4EA0} /* Palavra em inglês */
+.learn-card .card-pt{font-size:0.8rem;color:#999;font-weight:600}    /* Tradução em português */
+.learn-card .card-hint{font-size:0.72rem;color:var(--blue);font-weight:700;margin-top:2px} /* Dica de toque */
+
+/* Estado "revelado": borda verde + fundo esverdeado + animação de celebração */
+.learn-card.revealed{border-color:var(--green);background:#f0fff0;animation:celebrate 0.4s ease}
+
+/* Keyframe: pulsa (escala 1 → 1.15 → 1) */
+@keyframes celebrate{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.15)}
+  100%{transform:scale(1)}
+}
+
+/* Grupo de botões de navegação (Voltar / Quiz) */
+.nav-btns{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+
+/* ═══════════════════════════════════════════════════
+   TELA DE QUIZ
+═══════════════════════════════════════════════════ */
+/* Card que contém o emoji e as opções de resposta */
+.quiz-question{
+  background:var(--white);
+  border-radius:24px;
+  padding:22px 18px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  width:100%;
+  max-width:380px;
+  margin:10px 0;
+}
+/* Emoji grande que representa a palavra a adivinhar */
+.quiz-emoji{font-size:4.5rem;margin-bottom:10px;display:block;animation:float 2s ease-in-out infinite}
+/* Texto da pergunta */
+.quiz-prompt{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--gray-dark);margin-bottom:14px;font-weight:700}
+
+/* Grade 2x2 das opções de resposta */
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Cada botão de opção do quiz */
+.quiz-option{
+  background:var(--yellow);
+  border:3px solid var(--gray-light);
+  border-radius:16px;
+  padding:12px 8px;
+  font-family:'Baloo 2',cursive;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.2s;
+  color:var(--gray-dark);
+}
+/* Hover (apenas se não desabilitado): destaca em roxo */
+.quiz-option:hover:not(:disabled){
+  border-color:var(--purple);
+  background:var(--purple);
+  color:#fff;
+  transform:scale(1.03);
+}
+/* Feedback visual de resposta correta */
+.quiz-option.correct{background:var(--green);border-color:#5cb85c;color:#2d6e2a;animation:celebrate 0.5s}
+/* Feedback visual de resposta errada com animação de tremor */
+.quiz-option.wrong{background:var(--red);border-color:#c0392b;color:#fff;animation:shake 0.4s}
+/* Estado desabilitado: cursor padrão (após responder) */
+.quiz-option:disabled{cursor:default}
+
+/* Keyframe: sacode horizontalmente */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+
+/* ═══════════════════════════════════════════════════
+   MODO MISTÉRIO
+═══════════════════════════════════════════════════ */
+/* Card container do modo mistério */
+.mystery-wrap{
+  background:var(--white);
+  border-radius:28px;
+  padding:24px 18px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  max-width:380px;
+  width:100%;
+  margin:10px 0;
+}
+/* Label com nome da categoria atual */
+.mystery-cat-label{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#7B4EA0;margin-bottom:12px}
+
+/* Fileira de blocos representando as letras da palavra secreta */
+.mystery-letters{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+
+/* Bloco individual de letra */
+.mystery-letter{
+  width:42px;
+  height:50px;
+  background:var(--yellow);
+  border:3px solid var(--purple);
+  border-radius:12px;
+  font-family:'Baloo 2',cursive;
+  font-size:1.5rem;
+  font-weight:800;
+  color:#7B4EA0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:popIn 0.3s ease backwards; /* Entrada escalonada por letra */
+}
+/* Estado oculto: letra invisível (cor idêntica ao fundo) */
+.mystery-letter.blank{background:var(--white);color:transparent}
+/* Estado revelado (após resposta): verde com celebração */
+.mystery-letter.revealed-letter{background:var(--green);border-color:#5cb85c;animation:celebrate 0.4s}
+
+/* Área onde as dicas aparecem uma a uma */
+.clue-area{margin:8px 0 14px}
+
+/* Cada item de dica: entra deslizando da esquerda */
+.clue-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--yellow);
+  border-radius:12px;
+  padding:8px 12px;
+  margin-bottom:7px;
+  font-family:'Baloo 2',cursive;
+  font-size:0.9rem;
+  font-weight:700;
+  color:var(--gray-dark);
+  text-align:left;
+  opacity:0;                      /* Começa invisível */
+  transform:translateX(-20px);    /* Começa deslocado à esquerda */
+  transition:all 0.4s;            /* Animação de entrada */
+}
+/* Classe adicionada via JS para tornar a dica visível */
+.clue-item.visible{opacity:1;transform:translateX(0)}
+
+/* Ícone de lâmpada dentro de cada dica */
+.clue-icon{font-size:1.4rem;flex-shrink:0}
+
+/* Grade 3 colunas para as opções do modo mistério */
+.mystery-options-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+
+/* Botão de opção no modo mistério */
+.mystery-opt{
+  background:var(--yellow);
+  border:2px solid var(--purple);
+  border-radius:12px;
+  padding:9px 5px;
+  font-family:'Baloo 2',cursive;
+  font-size:0.85rem;
+  font-weight:800;
+  cursor:pointer;
+  transition:all 0.2s;
+  color:#7B4EA0;
+}
+.mystery-opt:hover:not(:disabled){background:var(--purple);color:#fff;transform:scale(1.05)}
+.mystery-opt:disabled{opacity:0.5;cursor:default} /* Desabilitado após responder */
+/* Opção correta: verde */
+.mystery-opt.correct-choice{background:var(--green);border-color:#5cb85c;color:#2d6e2a}
+/* Opção errada: vermelho com tremor */
+.mystery-opt.wrong-choice{background:var(--red);border-color:#c0392b;color:#fff;animation:shake 0.4s}
+
+/* Botão para revelar a próxima dica */
+.clue-reveal-btn{
+  font-family:'Baloo 2',cursive;
+  font-size:0.9rem;
+  font-weight:700;
+  border:2px solid var(--blue);
+  background:var(--white);
+  color:var(--blue);
+  border-radius:12px;
+  padding:6px 14px;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-top:6px;
+}
+.clue-reveal-btn:hover:not(:disabled){background:var(--blue);color:#fff}
+.clue-reveal-btn:disabled{opacity:0.4;cursor:default} /* Esgotadas as dicas disponíveis */
+
+/* ═══════════════════════════════════════════════════
+   BARRA DE PROGRESSO
+═══════════════════════════════════════════════════ */
+/* Container da barra com fundo semitransparente */
+.progress-wrap{
+  width:100%;
+  max-width:380px;
+  background:rgba(255,255,255,0.6);
+  border-radius:50px;
+  height:14px;
+  overflow:hidden; /* Garante que a barra interna não vaze */
+  margin-bottom:6px;
+}
+/* Barra preenchida com degradê pink→roxo; animada via JS */
+.progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--pink),var(--purple));
+  border-radius:50px;
+  transition:width 0.5s ease; /* Transição suave ao avançar */
+}
+/* Texto descritivo acima da barra (ex: "Pergunta 2 de 5") */
+.progress-label{
+  font-family:'Baloo 2',cursive;
+  font-size:0.9rem;
+  color:#7B4EA0;
+  font-weight:700;
+  text-align:right;
+  width:100%;
+  max-width:380px;
+  margin-bottom:4px;
+}
+/* Fileira de estrelas de resultado */
+.stars-row{display:flex;gap:6px;justify-content:center;font-size:2rem;margin:10px 0}
+
+/* ═══════════════════════════════════════════════════
+   TELA DE RESULTADO
+═══════════════════════════════════════════════════ */
+.result-box{
+  background:var(--white);
+  border-radius:28px;
+  padding:30px 22px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  max-width:360px;
+  width:100%;
+}
+.result-emoji{font-size:5rem}                             /* Emoji grande de resultado */
+.result-title{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:#7B4EA0;margin:8px 0 4px}
+.result-score{font-family:'Baloo 2',cursive;font-size:1.2rem;color:var(--orange);font-weight:700;margin-bottom:8px}
+.result-msg{font-size:0.9rem;color:#888;margin-bottom:16px}
+/* Emojis de confete animados */
+.confetti-row{font-size:1.5rem;margin-bottom:6px;animation:float 1s ease-in-out infinite}
+
+/* ═══════════════════════════════════════════════════
+   TELA DE RANKING
+═══════════════════════════════════════════════════ */
+.ranking-list{width:100%;max-width:360px;margin:12px 0;display:flex;flex-direction:column;gap:9px}
+
+/* Cada linha do ranking */
+.rank-item{
+  background:var(--white);
+  border-radius:16px;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:var(--shadow);
+  font-family:'Baloo 2',cursive;
+  font-size:1rem;
+  font-weight:700;
+}
+/* Bordas laterais coloridas para os três primeiros lugares */
+.rank-item:nth-child(1){border-left:6px solid #FFD700} /* Ouro */
+.rank-item:nth-child(2){border-left:6px solid #C0C0C0} /* Prata */
+.rank-item:nth-child(3){border-left:6px solid #CD7F32} /* Bronze */
+
+/* Elementos dentro de cada item do ranking */
+.rank-pos{font-size:1.3rem}          /* Medalha/posição */
+.rank-avatar{font-size:1.5rem}       /* Emoji avatar do jogador */
+.rank-name{flex:1;color:var(--gray-dark)} /* Nome (ocupa o espaço restante) */
+.rank-score{color:var(--orange)}     /* Pontuação em laranja */
+
+/* ═══════════════════════════════════════════════════
+   TELA DE CONFIGURAÇÕES
+═══════════════════════════════════════════════════ */
+.settings-box{
+  background:var(--white);
+  border-radius:24px;
+  padding:20px 18px;
+  width:100%;
+  max-width:360px;
+  box-shadow:var(--shadow);
+  margin:10px 0;
+}
+/* Cada linha de configuração: separada por borda inferior */
+.setting-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 0;
+  border-bottom:1px solid var(--gray-light);
+  flex-wrap:wrap;
+}
+.setting-row:last-child{border-bottom:none} /* Última linha sem borda */
+
+/* Ícone, label e controle de cada configuração */
+.setting-icon{font-size:1.5rem}
+.setting-label{font-family:'Baloo 2',cursive;font-size:0.95rem;font-weight:700;color:var(--gray-dark);flex:1}
+
+/* Toggle switch personalizado (checkbox estilizado) */
+.toggle{position:relative;width:50px;height:27px}
+.toggle input{opacity:0;width:0;height:0} /* Esconde o checkbox nativo */
+.toggle-slider{
+  position:absolute;
+  inset:0;
+  background:var(--gray-light);
+  border-radius:50px;
+  cursor:pointer;
+  transition:0.3s;
+}
+/* Bolinha branca do toggle */
+.toggle-slider:before{
+  content:'';
+  position:absolute;
+  width:21px;
+  height:21px;
+  left:3px;
+  top:3px;
+  background:white;
+  border-radius:50%;
+  transition:0.3s;
+  box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+/* Toggle ativado: fundo verde */
+.toggle input:checked + .toggle-slider{background:var(--green)}
+/* Toggle ativado: bolinha desliza para a direita */
+.toggle input:checked + .toggle-slider:before{transform:translateX(23px)}
+
+/* Select de idioma da interface */
+.lang-select{
+  font-family:'Baloo 2',cursive;
+  border:2px solid var(--gray-light);
+  border-radius:12px;
+  padding:5px 10px;
+  font-size:0.9rem;
+  font-weight:700;
+  color:var(--gray-dark);
+  background:var(--yellow);
+  cursor:pointer;
+}
+
+/* Linha de controle de volume (slider) */
+.vol-row{display:flex;align-items:center;gap:8px;width:100%;padding-left:36px;margin-top:4px}
+.vol-row input[type=range]{flex:1;accent-color:var(--purple)} /* Slider com cor roxa */
+
+/* ═══════════════════════════════════════════════════
+   POPUP DE FEEDBACK (overlay + card central)
+   Aparece brevemente após acerto/erro
+═══════════════════════════════════════════════════ */
+/* Overlay escurecido de fundo */
+.feedback-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:99;display:none}
+.feedback-overlay.show{display:block}
+
+/* Card popup centralizado com animação de escala (spring) */
+.feedback-popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0); /* Começa invisível (escala 0) */
+  background:var(--white);
+  border-radius:28px;
+  padding:30px 36px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.2);
+  z-index:100;
+  transition:transform 0.3s cubic-bezier(.34,1.56,.64,1); /* Efeito "mola" */
+}
+/* Classe adicionada via JS para mostrar o popup (escala 1) */
+.feedback-popup.show{transform:translate(-50%,-50%) scale(1)}
+
+/* Conteúdo do popup */
+.feedback-popup .fb-emoji{font-size:3.8rem;margin-bottom:6px}
+.feedback-popup .fb-text{font-family:'Baloo 2',cursive;font-size:1.7rem;font-weight:800;color:#7B4EA0}
+.feedback-popup .fb-sub{font-size:0.9rem;color:#aaa;margin-top:4px}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVIDADE: Telas menores que 400px
+═══════════════════════════════════════════════════ */
+@media(max-width:400px){
+  .logo-title{font-size:2.2rem}              /* Reduz título */
+  .btn-play{font-size:1.3rem;padding:14px 40px} /* Reduz botão principal */
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     ELEMENTOS DECORATIVOS DE FUNDO
+     Emojis flutuantes fixos na tela como papel de parede animado
+══════════════════════════════════════════════════ -->
+<div class="deco">⭐</div>
+<div class="deco">🌈</div>
+<div class="deco">☁️</div>
+<div class="deco">🌟</div>
+<div class="deco">✨</div>
+<div class="deco">🍀</div>
+<div class="deco">🎀</div>
+<div class="deco">🦋</div>
+
+<!-- ══════════════════════════════════════════════════
+     POPUP DE FEEDBACK GLOBAL
+     Aparece temporariamente após acertos e erros em qualquer modo.
+     Controlado pelas funções showFeedback() e goTo() no JavaScript.
+══════════════════════════════════════════════════ -->
+<div class="feedback-overlay" id="fbOverlay"></div>
+<div class="feedback-popup" id="fbPopup">
+  <div class="fb-emoji" id="fbEmoji">🎉</div>
+  <div class="fb-text"  id="fbText">Incrível!</div>
+  <div class="fb-sub"   id="fbSub"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 1: LOGIN
+     Primeira tela exibida (classe "active").
+     Permite ao jogador inserir nome e escolher avatar.
+══════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-wrap">
+    <!-- Urso decorativo com animação de pulo -->
+    <span class="login-bear">🐻</span>
+    <div class="login-title">GRAMATIC<br>MISTERY</div>
+    <div class="login-sub">Aprenda inglês brincando! 🌈</div>
+
+    <!-- Campo para o nome do jogador (max 16 caracteres) -->
+    <div style="font-family:'Baloo 2';font-size:0.95rem;color:#aaa;margin-bottom:6px;font-weight:700">Qual é o seu nome?</div>
+    <input class="name-input" id="player-name-input" type="text" maxlength="16" placeholder="Digite seu nome..."/>
+
+    <!-- Grade de avatares selecionáveis; selectAvatar() marca o escolhido -->
+    <div style="font-family:'Baloo 2';font-size:0.95rem;color:#aaa;margin-bottom:8px;font-weight:700">Escolha seu avatar:</div>
+    <div class="avatar-row" id="avatar-row">
+      <!-- 🐻 é o avatar padrão (classe "selected") -->
+      <button class="avatar-btn selected" onclick="selectAvatar(this,'🐻')">🐻</button>
+      <button class="avatar-btn" onclick="selectAvatar(this,'🦊')">🦊</button>
+      <button class="avatar-btn" onclick="selectAvatar(this,'🐱')">🐱</button>
+      <button class="avatar-btn" onclick="selectAvatar(this,'🐸')">🐸</button>
+      <button class="avatar-btn" onclick="selectAvatar(this,'🐧')">🐧</button>
+      <button class="avatar-btn" onclick="selectAvatar(this,'🦄')">🦄</button>
+    </div>
+
+    <!-- Botão que valida o nome e navega para a Home -->
+    <button class="btn btn-play" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">🎮 Vamos Jogar!</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 2: HOME
+     Menu principal com acesso a todos os modos e seções.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-home">
+  <div class="logo-area">
+    <!-- Avatar do jogador, atualizado em doLogin() -->
+    <div class="logo-bear" id="home-avatar">🐻</div>
+    <div class="logo-title">GRAMATIC<br>MISTERY</div>
+    <div class="logo-subtitle">✨ Aprenda Inglês Brincando! ✨</div>
+    <!-- Saudação personalizada com nome do jogador -->
+    <div class="greeting-name" id="greeting-name">Olá, Jogador!</div>
+  </div>
+
+  <!-- Botão principal: vai para seleção de modo/categoria -->
+  <button class="btn btn-play" onclick="goTo('screen-mode-select')">🎮 JOGAR!</button>
+
+  <!-- Acesso direto ao Modo Mistério (pula a seleção de modo) -->
+  <button class="btn btn-mystery" onclick="enterMysteryMode()">🔮 Modo Mistério</button>
+
+  <!-- Botões secundários de configurações e ranking -->
+  <div class="home-actions">
+    <button class="btn btn-settings" onclick="goTo('screen-settings')">⚙️ Config</button>
+    <button class="btn btn-ranking"  onclick="goTo('screen-ranking')">🏆 Ranking</button>
+  </div>
+
+  <!-- Contador de estrelas totais acumuladas pelo jogador -->
+  <div style="margin-top:16px;font-family:'Baloo 2';color:#aaa;font-size:0.9rem">
+    ⭐ Suas estrelas: <span id="total-stars-home" style="color:var(--orange);font-weight:800">0</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 3: SELEÇÃO DE MODO E CATEGORIA
+     Permite escolher entre Aprender / Quiz e depois a categoria.
+     Também é reutilizada pelo Modo Mistério (com tabs ocultas).
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-mode-select">
+  <!-- Título dinâmico: muda conforme o modo (quiz/mistério) -->
+  <div class="screen-title" id="mode-screen-title">🎯 Escolha o Modo</div>
+
+  <!-- Abas de modo (ocultas no Modo Mistério via JS) -->
+  <div class="mode-tabs" id="mode-tabs-wrap">
+    <!-- setMode() atualiza a variável currentMode e destaca a aba ativa -->
+    <div class="mode-tab active" onclick="setMode('learn',this)">📚 Aprender</div>
+    <div class="mode-tab"        onclick="setMode('quiz',this)">❓ Quiz</div>
+  </div>
+
+  <!-- Descrição contextual do modo selecionado -->
+  <div id="mode-desc" style="font-family:'Baloo 2';font-size:0.85rem;color:#aaa;margin:4px 0 8px;font-weight:600;text-align:center">
+    Explore as palavras com imagens e áudio
+  </div>
+
+  <!-- Título da seção de categorias -->
+  <div style="font-family:'Baloo 2';font-size:1.15rem;font-weight:800;color:#7B4EA0;margin-bottom:6px">📂 Categoria</div>
+
+  <!-- Grade de categorias; pickCategory() inicia o modo correto -->
+  <div class="category-grid">
+    <div class="category-card colors"  onclick="pickCategory('colors')"> <span class="cat-icon">🎨</span><span>Colors</span> <span class="star-badge">⭐ Cores</span></div>
+    <div class="category-card animals" onclick="pickCategory('animals')"><span class="cat-icon">🐾</span><span>Animals</span><span class="star-badge">⭐ Animais</span></div>
+    <div class="category-card fruits"  onclick="pickCategory('fruits')"> <span class="cat-icon">🍎</span><span>Fruits</span> <span class="star-badge">⭐ Frutas</span></div>
+    <div class="category-card numbers" onclick="pickCategory('numbers')"><span class="cat-icon">🔢</span><span>Numbers</span><span class="star-badge">⭐ Números</span></div>
+    <div class="category-card shapes"  onclick="pickCategory('shapes')"> <span class="cat-icon">🔷</span><span>Shapes</span> <span class="star-badge">⭐ Formas</span></div>
+    <div class="category-card family"  onclick="pickCategory('family')"> <span class="cat-icon">👨‍👩‍👧</span><span>Family</span><span class="star-badge">⭐ Família</span></div>
+  </div>
+
+  <button class="btn btn-back" onclick="goTo('screen-home')">← Voltar</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 4: APRENDER
+     Grid de cards com emoji, palavra em inglês e tradução.
+     Toque em cada card reproduz o áudio da palavra.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-learn">
+  <div class="screen-title">🌟 Vamos Aprender! 🌟</div>
+  <div style="font-family:'Baloo 2';color:#aaa;font-size:0.82rem;margin-bottom:6px">
+    Toque nos cards para ouvir a pronúncia!
+  </div>
+  <!-- Grid preenchido dinamicamente por startLearn() -->
+  <div class="learn-grid" id="learn-grid"></div>
+
+  <div class="nav-btns">
+    <button class="btn btn-back"  onclick="goTo('screen-mode-select')">← Voltar</button>
+    <!-- launchQuiz() muda o modo para 'quiz' e inicia a mesma categoria -->
+    <button class="btn btn-green" onclick="launchQuiz()">Quiz! →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 5: QUIZ
+     Exibe emoji + 4 opções de resposta. 5 perguntas por sessão.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-quiz">
+  <!-- Indicador de progresso: "Pergunta X de 5" -->
+  <div class="progress-label" id="quiz-label">Pergunta 1 de 5</div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <!-- Card central com a pergunta -->
+  <div class="quiz-question">
+    <!-- Emoji representando a palavra a adivinhar -->
+    <span class="quiz-emoji" id="quiz-emoji">🎨</span>
+    <!-- Pergunta (muda conforme idioma da interface) -->
+    <div class="quiz-prompt" id="quiz-prompt">O que é isso em inglês?</div>
+    <!-- Opções geradas dinamicamente por renderQuestion() -->
+    <div class="quiz-options" id="quiz-options"></div>
+  </div>
+
+  <!-- Placar ao vivo do quiz (+10 por acerto) -->
+  <div style="margin-top:10px;font-family:'Baloo 2';color:var(--orange);font-size:1rem;font-weight:700">
+    ⭐ Pontos: <span id="live-score">0</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 6: MODO MISTÉRIO
+     O jogador vê letras em branco e recebe dicas progressivas
+     para adivinhar a palavra secreta. Bônus maior com menos dicas.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-mystery">
+  <div class="screen-title">🔮 Modo Mistério 🔮</div>
+  <div style="font-family:'Baloo 2';font-size:0.82rem;color:#aaa;margin-bottom:4px">
+    Use as dicas para descobrir a palavra secreta!
+  </div>
+
+  <div class="mystery-wrap">
+    <!-- Nome da categoria atual -->
+    <div class="mystery-cat-label" id="mystery-cat-label">🎨 Colors</div>
+
+    <!-- Blocos de letras; gerados em renderMysteryQ() -->
+    <div class="mystery-letters" id="mystery-letters"></div>
+
+    <!-- Dicas adicionadas progressivamente -->
+    <div class="clue-area" id="clue-area"></div>
+
+    <!-- Botão para revelar a próxima dica (desativado quando esgotado) -->
+    <button class="clue-reveal-btn" id="clue-btn" onclick="revealNextClue()">💡 Próxima Dica</button>
+
+    <!-- Opções de resposta (3 colunas); geradas em renderMysteryQ() -->
+    <div class="mystery-options-grid" id="mystery-options"></div>
+  </div>
+
+  <!-- Placar ao vivo do modo mistério -->
+  <div style="font-family:'Baloo 2';font-size:1rem;color:var(--orange);font-weight:700;margin-top:8px">
+    ⭐ Pontos: <span id="mystery-live-score">0</span>
+  </div>
+
+  <!-- Indicador de rodada e barra de progresso -->
+  <div class="progress-label" id="mystery-label" style="margin-top:6px">Rodada 1 de 5</div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="mystery-progress" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 7: RESULTADO
+     Exibe pontuação final, estrelas ganhas (1-3) e mensagem.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="result-box">
+    <!-- Emojis de confete animados -->
+    <div class="confetti-row">🎊🎉🎊</div>
+
+    <!-- Conteúdo preenchido dinamicamente por showResultScreen() -->
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-title" id="result-title">Ótimo Trabalho!</div>
+    <div class="result-score" id="result-score">+10 ⭐</div>
+
+    <!-- Estrelas de avaliação (1-3); opacity 0.2 para as não ganhas -->
+    <div class="stars-row" id="result-stars"></div>
+    <div class="result-msg" id="result-msg">Você foi incrível!</div>
+
+    <div class="nav-btns" style="justify-content:center;margin-top:4px">
+      <button class="btn btn-ranking" onclick="goTo('screen-ranking')">🏆 Ranking</button>
+      <!-- Volta para escolher novo modo/categoria -->
+      <button class="btn btn-play" style="font-size:1rem;padding:14px 24px" onclick="goTo('screen-mode-select')">Jogar Mais!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 8: RANKING
+     Lista os 8 melhores jogadores da sessão.
+     O jogador atual é destacado com fundo amarelo.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-ranking">
+  <div class="screen-title">🏆 Ranking 🏆</div>
+  <!-- Lista preenchida dinamicamente por renderRanking() -->
+  <div class="ranking-list" id="ranking-list"></div>
+  <button class="btn btn-back" onclick="goTo('screen-home')">← Início</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TELA 9: CONFIGURAÇÕES
+     Controles de som, música, TTS, idioma e conta do jogador.
+══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-settings">
+  <div class="screen-title">⚙️ Configurações</div>
+  <div class="settings-box">
+
+    <!-- Toggle: sons de efeito (cliques, acertos, erros) -->
+    <div class="setting-row">
+      <span class="setting-icon">🔊</span>
+      <span class="setting-label">Sons de efeito</span>
+      <label class="toggle">
+        <input type="checkbox" checked id="toggle-sound" onchange="soundEnabled=this.checked">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Toggle: música de fundo + slider de volume -->
+    <div class="setting-row" style="flex-direction:column;align-items:flex-start">
+      <div style="display:flex;align-items:center;gap:10px;width:100%">
+        <span class="setting-icon">🎵</span>
+        <span class="setting-label">Música de fundo</span>
+        <label class="toggle">
+          <!-- toggleMusic() inicia ou para o intervalo da melodia -->
+          <input type="checkbox" checked id="toggle-music" onchange="toggleMusic()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <!-- Slider de volume (0–100); setVolume() atualiza apenas o label visual -->
+      <div class="vol-row">
+        <span style="font-size:0.8rem;color:#aaa;font-weight:700;white-space:nowrap">Volume</span>
+        <input type="range" min="0" max="100" value="40" id="vol-slider" oninput="setVolume(this.value)">
+        <span style="font-size:0.8rem;color:var(--purple);font-weight:700;min-width:36px" id="vol-label">40%</span>
+      </div>
+    </div>
+
+    <!-- Toggle: Text-To-Speech (pronúncia das palavras em inglês) -->
+    <div class="setting-row">
+      <span class="setting-icon">🗣️</span>
+      <span class="setting-label">Pronúncia (TTS)</span>
+      <label class="toggle">
+        <input type="checkbox" checked id="toggle-tts" onchange="ttsEnabled=this.checked">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Select: idioma da interface (Português / English) -->
+    <div class="setting-row">
+      <span class="setting-icon">🌐</span>
+      <span class="setting-label">Idioma da interface</span>
+      <!-- Altera a variável global lang; afeta textos de perguntas -->
+      <select class="lang-select" onchange="lang=this.value">
+        <option value="pt">🇧🇷 Português</option>
+        <option value="en">🇺🇸 English</option>
+      </select>
+    </div>
+
+    <!-- Botão: volta para a tela de login (trocar jogador) -->
+    <div class="setting-row">
+      <span class="setting-icon">👤</span>
+      <span class="setting-label">Trocar de jogador</span>
+      <button class="btn btn-back" style="padding:7px 12px;font-size:0.8rem" onclick="goLogin()">Trocar</button>
+    </div>
+
+    <!-- Botão: zera totalStars e restaura ranking padrão -->
+    <div class="setting-row">
+      <span class="setting-icon">🗑️</span>
+      <span class="setting-label">Zerar pontuação</span>
+      <button class="btn btn-back" style="padding:7px 12px;font-size:0.8rem;background:var(--red);color:#fff" onclick="resetScore()">Zerar</button>
+    </div>
+  </div>
+
+  <button class="btn btn-back" onclick="goTo('screen-home')">← Voltar</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT — LÓGICA DO JOGO
+══════════════════════════════════════════════════ -->
+<script>
+
+// ═══════════════════════════════════════════════════
+//  BASE DE DADOS DAS CATEGORIAS
+//  Cada categoria é um array de objetos com:
+//    en    → palavra em inglês
+//    pt    → tradução em português
+//    emoji → emoji representativo
+//    clues → array de 3 dicas para o Modo Mistério
+// ═══════════════════════════════════════════════════
+const categories = {
+  colors:[
+    {en:'Red',    pt:'Vermelho',emoji:'🔴',clues:['É a cor do tomate 🍅','Parece fogo 🔥','Cor de coração ❤️']},
+    {en:'Blue',   pt:'Azul',   emoji:'🔵',clues:['Cor do céu ☁️','Cor do mar 🌊','Cor do gelo ❄️']},
+    {en:'Yellow', pt:'Amarelo',emoji:'🟡',clues:['Cor do sol ☀️','Cor da banana 🍌','Cor de girassol 🌻']},
+    {en:'Green',  pt:'Verde',  emoji:'🟢',clues:['Cor da grama 🌿','Cor do sapinho 🐸','Cor do abacate 🥑']},
+    {en:'Pink',   pt:'Rosa',   emoji:'🩷',clues:['Cor de flamingo 🦩','Cor de chiclete 🍬','Cor de flores 🌸']},
+    {en:'Purple', pt:'Roxo',   emoji:'🟣',clues:['Cor de uva 🍇','Cor mágica de fadas 🧚','Cor do roxo-grama 🌆']},
+  ],
+  animals:[
+    {en:'Dog',   pt:'Cachorro',emoji:'🐶',clues:['Faz AU AU 🐾','É o melhor amigo do humano','Abana o rabo quando feliz 🎀']},
+    {en:'Cat',   pt:'Gato',    emoji:'🐱',clues:['Faz MIAU 😺','Adora dormir no sofá 😴','Tem bigodes longos 〰️']},
+    {en:'Rabbit',pt:'Coelho',  emoji:'🐰',clues:['Tem orelhas enormes 👂','Adora cenouras 🥕','Pula muito! 🏃']},
+    {en:'Bear',  pt:'Urso',    emoji:'🐻',clues:['Grande e fofo 🤗','Adora mel 🍯','Hiberna no inverno ❄️']},
+    {en:'Bird',  pt:'Pássaro', emoji:'🐦',clues:['Tem asas e voa ✈️','Canta de manhã 🎵','Mora em ninho 🪺']},
+    {en:'Fish',  pt:'Peixe',   emoji:'🐟',clues:['Vive na água 🌊','Respira por guelras','Nada muito bem 🏊']},
+  ],
+  fruits:[
+    {en:'Apple',     pt:'Maçã',     emoji:'🍎',clues:['Vermelha ou verde','Cresce em árvore 🌳','An apple a day... 💊']},
+    {en:'Banana',    pt:'Banana',   emoji:'🍌',clues:['Amarela e curva','Macacos adoram 🐒','Vem em cacho 🍌']},
+    {en:'Grape',     pt:'Uva',      emoji:'🍇',clues:['Pequena e redonda','Vem em cacho 🍇','Serve para fazer suco 🧃']},
+    {en:'Orange',    pt:'Laranja',  emoji:'🍊',clues:['Tem a cor que leva seu nome!','Cheia de vitamina C','Redonda com casca grossa']},
+    {en:'Strawberry',pt:'Morango',  emoji:'🍓',clues:['Vermelha com pintinhos','Fica bem em sorvete 🍦','Tem formato de coração ❤️']},
+    {en:'Watermelon',pt:'Melancia', emoji:'🍉',clues:['Verde por fora, vermelha por dentro','Perfeita para o verão ☀️','Tem sementes pretas']},
+  ],
+  numbers:[
+    {en:'One',   pt:'Um',    emoji:'1️⃣',clues:['O primeiro número','Apenas um dedinho ☝️','Começa a contagem!']},
+    {en:'Two',   pt:'Dois',  emoji:'2️⃣',clues:['Par de sapatos 👟👟','Dois olhos no seu rosto 👀','Vem depois do um']},
+    {en:'Three', pt:'Três',  emoji:'3️⃣',clues:['Três folhas do trevo 🍀','Três lados do triângulo △','Vem depois do dois']},
+    {en:'Four',  pt:'Quatro',emoji:'4️⃣',clues:['Quatro patas do cachorro 🐕','Quatro rodas do carro 🚗','Metade de oito']},
+    {en:'Five',  pt:'Cinco', emoji:'5️⃣',clues:['Cinco dedos na mão 🖐️','Cinco pontas da estrela ⭐','Meio caminho até dez!']},
+    {en:'Six',   pt:'Seis',  emoji:'6️⃣',clues:['Seis lados do hexágono','Meia dúzia de ovos 🥚','Vem depois do cinco']},
+  ],
+  shapes:[
+    {en:'Circle',  pt:'Círculo',  emoji:'⭕',clues:['Redondo como uma roda 🎡','Sem cantos nem lados','Rola fácil no chão 🎱']},
+    {en:'Square',  pt:'Quadrado', emoji:'🟥',clues:['Quatro lados iguais','Quatro cantos certinhos','Como uma caixa vista de cima 📦']},
+    {en:'Triangle',pt:'Triângulo',emoji:'🔺',clues:['Três lados','Três cantos pontudos','Como fatia de pizza 🍕']},
+    {en:'Star',    pt:'Estrela',  emoji:'⭐',clues:['Brilha no céu à noite 🌙','Tem cinco pontas','Símbolo de magia ✨']},
+    {en:'Heart',   pt:'Coração',  emoji:'❤️',clues:['Símbolo do amor 💕','Aparece no dia dos namorados','Forma de dois círculos + triângulo']},
+    {en:'Diamond', pt:'Diamante', emoji:'💎',clues:['Como um quadrado virado','Símbolo de valor 💍','Forma do campo de beisebol ⚾']},
+  ],
+  family:[
+    {en:'Mother', pt:'Mãe',   emoji:'👩',clues:['Cuida de você com amor ❤️','Faz comida deliciosa 🍲','Dá abraços quentinhos 🤗']},
+    {en:'Father', pt:'Pai',   emoji:'👨',clues:['Te ensina a andar de bicicleta 🚲','Conta histórias à noite 📖','Protetor da família 🛡️']},
+    {en:'Sister', pt:'Irmã',  emoji:'👧',clues:['Menina da família','Pode emprestar brinquedos 🧸','Às vezes briga, mas ama muito!']},
+    {en:'Brother',pt:'Irmão', emoji:'👦',clues:['Menino da família','Parceiro de brincadeiras 🎮','Às vezes chato, mas é seu herói!']},
+    {en:'Baby',   pt:'Bebê',  emoji:'👶',clues:['O menor da família','Fica no berço 🛏️','Faz barulhinho fofo 🍼']},
+    {en:'Grandma',pt:'Vovó',  emoji:'👵',clues:['Mãe da sua mãe ou do seu pai','Faz bolo gostoso 🎂','Conta histórias antigas 📚']},
+  ]
+};
+
+
+// ═══════════════════════════════════════════════════
+//  ESTADO GLOBAL DO JOGO
+//  Variáveis que persistem durante toda a sessão
+// ═══════════════════════════════════════════════════
+let playerName   = 'Jogador'; // Nome do jogador logado
+let playerAvatar = '🐻';      // Avatar selecionado
+let selectedAvatar = '🐻';   // Avatar em seleção (antes de confirmar login)
+
+let currentCategory = null;  // Categoria ativa ('colors', 'animals', etc.)
+let currentMode = 'learn';   // Modo ativo: 'learn' | 'quiz' | 'mystery'
+
+// Estado do Quiz
+let quizItems = [];    // Array embaralhado com 5 itens da categoria
+let quizIndex = 0;     // Índice da pergunta atual
+let quizScore = 0;     // Pontuação da sessão de quiz
+
+// Estado do Modo Mistério
+let mysteryItems = []; // Array com 5 itens para as rodadas
+let mysteryIndex = 0;  // Índice da rodada atual
+let mysteryScore = 0;  // Pontuação da sessão mistério
+let cluesShown   = 0;  // Quantas dicas foram reveladas até agora
+let mysteryItem  = null; // Item atual no modo mistério
+
+// Pontuação total acumulada de todas as sessões
+let totalStars = 0;
+
+// Flags de configuração (controladas pelos toggles nas Settings)
+let soundEnabled = true; // Sons de efeito (cliques, acertos, erros)
+let musicEnabled = true; // Música de fundo
+let ttsEnabled   = true; // Text-To-Speech (pronunciar palavra em inglês)
+let lang = 'pt';         // Idioma da interface ('pt' ou 'en')
+
+// Ranking inicial com jogadoras fictícias de exemplo
+let ranking = [
+  {name:'Sofia',    avatar:'🦄', score:320},
+  {name:'Giovanna', avatar:'🐱', score:260},
+  {name:'Leticia',  avatar:'🐸', score:195},
+];
+
+
+// ═══════════════════════════════════════════════════
+//  MOTOR DE ÁUDIO (Web Audio API)
+//  Gera sons sintetizados sem arquivos externos.
+//  Usa osciladores e envelopes de ganho.
+// ═══════════════════════════════════════════════════
+
+// Instância única do AudioContext (criada sob demanda para evitar bloqueios do browser)
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+/**
+ * Toca um tom simples com oscilador.
+ * @param {number} freq  - Frequência em Hz
+ * @param {number} dur   - Duração em segundos
+ * @param {string} type  - Tipo de onda: 'sine' | 'square' | 'sawtooth' | 'triangle'
+ * @param {number} vol   - Volume inicial (0 a 1)
+ */
+function playTone(freq, dur, type='sine', vol=0.22){
+  if(!soundEnabled) return; // Som desabilitado nas configurações
+  try{
+    const ctx  = getAudioCtx();
+    const osc  = ctx.createOscillator(); // Gerador de onda
+    const gain = ctx.createGain();       // Controle de volume
+
+    // Conecta: oscilador → ganho → saída
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    // Configura a frequência e tipo de onda
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+    // Envelope de volume: começa em 'vol' e decai até quase zero
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+
+    // Inicia e para o oscilador
+    osc.start();
+    osc.stop(ctx.currentTime + dur);
+  } catch(e){} // Silencia erros (ex: tab em segundo plano)
+}
+
+// Funções de som para cada evento do jogo
+const playCorrect = () => {
+  // Sequência ascendente: Dó → Mi → Sol (acorde de Dó maior)
+  playTone(523, 0.1);
+  setTimeout(() => playTone(659, 0.1), 110);
+  setTimeout(() => playTone(784, 0.18), 220);
+};
+
+const playWrong = () => {
+  // Dois tons graves com onda sawtooth (som "errado" áspero)
+  playTone(200, 0.15, 'sawtooth');
+  setTimeout(() => playTone(170, 0.15, 'sawtooth'), 160);
+};
+
+const playClick  = () => playTone(440, 0.06, 'triangle', 0.12); // Clique suave de navegação
+const playReveal = () => { playTone(880, 0.05); setTimeout(() => playTone(1047, 0.05), 60); }; // Dois tons agudos ao revelar
+const playVictory = () => { [523,659,784,1047].forEach((f,i) => setTimeout(() => playTone(f, 0.16, 'triangle'), i*95)); }; // Fanfarra de vitória
+const playMystery = () => { [300,360,430,500,580].forEach((f,i) => setTimeout(() => playTone(f, 0.1), i*75)); }; // Escala mística ascendente
+const playClue    = () => playTone(600, 0.09, 'sine', 0.15); // Tom suave ao revelar dica
+
+
+// ─── Música de Fundo ────────────────────────────────
+let musicInterval = null; // Referência do setInterval da música
+let melodyIdx = 0;        // Índice atual na melodia
+
+// Notas da melodia de fundo (frequências em Hz; 0 = pausa)
+const melody = [261,294,330,349,392,349,330,294,261,0,392,440,392,349,330,0,523,494,440,392,0,330,349,392];
+
+/** Inicia a música de fundo como um setInterval que toca nota a nota */
+function startMusic(){
+  if(!musicEnabled || musicInterval) return; // Já tocando ou desabilitada
+  musicInterval = setInterval(() => {
+    const f = melody[melodyIdx % melody.length]; // Laço circular na melodia
+    if(f > 0) playTone(f, 0.28, 'sine', 0.05);  // Toca apenas notas não-zero
+    melodyIdx++;
+  }, 320); // 320ms por nota ≈ ♩ = 187 BPM
+}
+
+/** Para a música limpando o intervalo */
+function stopMusic(){
+  clearInterval(musicInterval);
+  musicInterval = null;
+}
+
+/** Chamada pelo toggle de música nas configurações */
+function toggleMusic(){
+  musicEnabled = document.getElementById('toggle-music').checked;
+  musicEnabled ? startMusic() : stopMusic();
+}
+
+/** Atualiza apenas o label visual do volume (a API Web Audio não tem volume global aqui) */
+function setVolume(v){
+  document.getElementById('vol-label').textContent = v + '%';
+}
+
+
+// ─── Text-To-Speech (TTS) ───────────────────────────
+/**
+ * Pronuncia uma palavra em inglês usando a API SpeechSynthesis do browser.
+ * @param {string} word - Palavra em inglês para pronunciar
+ */
+function speak(word){
+  if(!ttsEnabled || !window.speechSynthesis) return; // TTS desabilitado ou não suportado
+  const utt = new SpeechSynthesisUtterance(word);
+  utt.lang = 'en-US'; // Pronúncia em inglês americano
+  utt.rate = 0.82;    // Levemente mais lento para melhor clareza (crianças)
+  speechSynthesis.cancel(); // Cancela qualquer fala em andamento
+  speechSynthesis.speak(utt);
+}
+
+
+// ═══════════════════════════════════════════════════
+//  SISTEMA DE LOGIN
+// ═══════════════════════════════════════════════════
+
+/**
+ * Marca o avatar selecionado visualmente e armazena o emoji escolhido.
+ * @param {HTMLElement} btn   - Botão clicado
+ * @param {string}      emoji - Emoji do avatar
+ */
+function selectAvatar(btn, emoji){
+  // Remove seleção de todos os botões
+  document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected'); // Destaca o botão clicado
+  selectedAvatar = emoji;        // Salva o avatar escolhido
+  playClick();
+}
+
+/**
+ * Processa o formulário de login:
+ * - Lê o nome digitado (usa 'Jogador' se vazio)
+ * - Aplica avatar e nome na tela Home
+ * - Navega para a Home e inicia a música
+ */
+function doLogin(){
+  const inp = document.getElementById('player-name-input').value.trim();
+  playerName   = inp || 'Jogador'; // Fallback para nome padrão
+  playerAvatar = selectedAvatar;
+
+  // Atualiza elementos visuais da Home
+  document.getElementById('home-avatar').textContent   = playerAvatar;
+  document.getElementById('greeting-name').textContent = `Olá, ${playerName}! ${playerAvatar}`;
+  document.getElementById('total-stars-home').textContent = totalStars;
+
+  playClick();
+  goTo('screen-home');
+  setTimeout(startMusic, 500); // Aguarda 500ms para iniciar a música (evita corte)
+}
+
+/**
+ * Volta para o login (trocar de jogador):
+ * - Para e reseta a música
+ * - Navega para a tela de login
+ */
+function goLogin(){
+  stopMusic();
+  melodyIdx = 0; // Reseta posição da melodia
+  goTo('screen-login');
+}
+
+
+// ═══════════════════════════════════════════════════
+//  NAVEGAÇÃO ENTRE TELAS (SPA)
+// ═══════════════════════════════════════════════════
+
+/**
+ * Troca a tela ativa:
+ * - Remove 'active' de todas as telas
+ * - Adiciona 'active' na tela alvo
+ * - Executa ações especiais conforme a tela
+ * @param {string} id - ID da tela alvo (ex: 'screen-home')
+ */
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  // Ações especiais ao navegar para certas telas
+  if(id === 'screen-home')    document.getElementById('total-stars-home').textContent = totalStars;
+  if(id === 'screen-ranking') renderRanking(); // Reconstrói a lista do ranking
+
+  playClick();
+}
+
+
+// ═══════════════════════════════════════════════════
+//  SELEÇÃO DE MODO E CATEGORIA
+// ═══════════════════════════════════════════════════
+
+/**
+ * Atualiza o modo de jogo e destaca a aba correta.
+ * @param {string}      mode - 'learn' ou 'quiz'
+ * @param {HTMLElement} tab  - Elemento da aba clicada
+ */
+function setMode(mode, tab){
+  currentMode = mode;
+  // Atualiza destaque visual das abas
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  // Atualiza descrição do modo
+  document.getElementById('mode-desc').textContent =
+    mode === 'learn' ? 'Explore as palavras com imagens e áudio' : 'Responda as perguntas e ganhe estrelas!';
+  playClick();
+}
+
+/**
+ * Prepara o Modo Mistério antes de mostrar a seleção de categoria:
+ * - Oculta as abas de modo (Aprender/Quiz)
+ * - Atualiza título e descrição
+ */
+function enterMysteryMode(){
+  currentMode = 'mystery';
+  document.getElementById('mode-screen-title').textContent  = '🔮 Modo Mistério';
+  document.getElementById('mode-tabs-wrap').style.display   = 'none'; // Oculta abas
+  document.getElementById('mode-desc').textContent          = 'Use as dicas para descobrir a palavra secreta!';
+  playMystery();
+  goTo('screen-mode-select');
+}
+
+/**
+ * Chamada ao clicar em uma categoria:
+ * - Armazena a categoria escolhida
+ * - Restaura as abas de modo (caso tenham sido ocultadas)
+ * - Roteia para o modo de jogo correto
+ * @param {string} cat - Nome da categoria ('colors', 'animals', etc.)
+ */
+function pickCategory(cat){
+  currentCategory = cat;
+  playClick();
+
+  // Restaura as abas para a próxima vez que a tela for aberta
+  document.getElementById('mode-tabs-wrap').style.display  = 'flex';
+  document.getElementById('mode-screen-title').textContent = '🎯 Escolha o Modo';
+
+  // Roteamento por modo
+  if(currentMode === 'mystery'){ startMystery(); return; }
+  if(currentMode === 'learn')    startLearn();
+  else                           startQuiz();
+}
+
+
+// ═══════════════════════════════════════════════════
+//  MODO APRENDER
+// ═══════════════════════════════════════════════════
+
+/**
+ * Inicia o modo de aprendizado para a categoria selecionada:
+ * - Limpa e reconstrói a grade de cards
+ * - Cada card toca o áudio ao ser clicado
+ */
+function startLearn(){
+  const items = categories[currentCategory];
+  const grid  = document.getElementById('learn-grid');
+  grid.innerHTML = ''; // Limpa cards anteriores
+
+  items.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'learn-card';
+    card.style.animationDelay = (i * 0.08) + 's'; // Entrada escalonada
+
+    card.innerHTML = `
+      <span class="card-emoji">${item.emoji}</span>
+      <div class="card-en">${item.en}</div>
+      <div class="card-pt">${item.pt}</div>
+      <div class="card-hint">🔊 Toque para ouvir</div>
+    `;
+
+    // Ao clicar: anima, toca som e pronuncia a palavra
+    card.onclick = () => {
+      card.classList.add('revealed');
+      playReveal();
+      speak(item.en);
+      showFeedback('✨', 'Muito bem!', '', 700);
+    };
+
+    grid.appendChild(card);
+  });
+
+  goTo('screen-learn');
+}
+
+/**
+ * Atalho para iniciar o Quiz a partir da tela de aprendizado
+ * (botão "Quiz! →" na tela Learn).
+ */
+function launchQuiz(){
+  currentMode = 'quiz';
+  startQuiz();
+}
+
+
+// ═══════════════════════════════════════════════════
+//  MODO QUIZ
+// ═══════════════════════════════════════════════════
+
+/**
+ * Inicializa uma sessão de quiz:
+ * - Embaralha e seleciona 5 itens da categoria
+ * - Reseta índice e pontuação
+ * - Navega para a tela do quiz e renderiza a primeira pergunta
+ */
+function startQuiz(){
+  // Embaralha os itens e pega os 5 primeiros
+  quizItems = [...categories[currentCategory]].sort(() => Math.random() - 0.5).slice(0, 5);
+  quizIndex = 0;
+  quizScore = 0;
+  document.getElementById('live-score').textContent = 0;
+  goTo('screen-quiz');
+  renderQuestion();
+}
+
+/**
+ * Renderiza a pergunta atual do quiz:
+ * - Atualiza progresso, emoji e texto da pergunta
+ * - Gera 3 opções erradas + 1 correta, embaralhadas
+ */
+function renderQuestion(){
+  const total = quizItems.length;
+  const item  = quizItems[quizIndex];
+
+  // Atualiza label e barra de progresso
+  document.getElementById('quiz-label').textContent     = `Pergunta ${quizIndex + 1} de ${total}`;
+  document.getElementById('progress-bar').style.width   = ((quizIndex / total) * 100) + '%';
+  document.getElementById('quiz-emoji').textContent     = item.emoji;
+
+  // Texto da pergunta conforme idioma da interface
+  document.getElementById('quiz-prompt').textContent =
+    lang === 'pt' ? 'O que é isso em inglês?' : 'What is this in English?';
+
+  // Pega 3 itens incorretos da mesma categoria, embaralhados
+  const wrongs = categories[currentCategory]
+    .filter(i => i.en !== item.en)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+
+  // Mistura correto + errados e embaralha novamente
+  const options = [...wrongs, item].sort(() => Math.random() - 0.5);
+
+  const container = document.getElementById('quiz-options');
+  container.innerHTML = ''; // Limpa opções anteriores
+
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt.en;
+    // Ao clicar, passa se é correto e o container para desabilitar as demais
+    btn.onclick = () => handleAnswer(btn, opt.en === item.en, container);
+    container.appendChild(btn);
+  });
+}
+
+/**
+ * Processa a resposta do jogador no quiz:
+ * @param {HTMLElement} btn        - Botão clicado
+ * @param {boolean}     isCorrect  - Se a resposta está correta
+ * @param {HTMLElement} container  - Container das opções (para desabilitar todas)
+ */
+function handleAnswer(btn, isCorrect, container){
+  // Desabilita todos os botões de opção (impede duplo clique)
+  container.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+
+  if(isCorrect){
+    btn.classList.add('correct');
+    quizScore += 10; // +10 pontos por acerto
+    document.getElementById('live-score').textContent = quizScore;
+    playCorrect();
+    speak(quizItems[quizIndex].en); // Pronuncia a resposta correta
+    showFeedback('🎉', 'Acertou!', '+10 ⭐', 900);
+  } else {
+    btn.classList.add('wrong');
+    // Revela qual era a resposta correta
+    container.querySelectorAll('.quiz-option').forEach(b => {
+      if(b.textContent === quizItems[quizIndex].en) b.classList.add('correct');
+    });
+    playWrong();
+    showFeedback('😅', 'Quase!', 'Continue tentando!', 900);
+  }
+
+  // Aguarda 1.5s e avança para a próxima pergunta (ou resultado final)
+  setTimeout(() => {
+    quizIndex++;
+    quizIndex < quizItems.length ? renderQuestion() : showQuizResult();
+  }, 1500);
+}
+
+/**
+ * Exibe o resultado final do quiz:
+ * - Adiciona pontuação ao total de estrelas
+ * - Atualiza o ranking
+ * - Define emoji/título/mensagem conforme desempenho
+ */
+function showQuizResult(){
+  totalStars += quizScore;
+  upsertRanking(); // Atualiza posição do jogador no ranking
+
+  const pct = quizScore / (quizItems.length * 10); // Percentual de acertos (0 a 1)
+
+  let emoji = '🎉', title = 'Ótimo Trabalho!', msg = 'Continue assim, você arrasa!';
+  if(pct === 1)     { emoji = '🏆'; title = 'Perfeito!';         msg = 'Você é um gênio do inglês!'; }
+  else if(pct < 0.4){ emoji = '😊'; title = 'Continue Tentando!'; msg = 'Pratique mais e você vai longe!'; }
+
+  showResultScreen(emoji, title, `+${quizScore} ⭐`, msg, quizScore, quizItems.length * 10);
+}
+
+
+// ═══════════════════════════════════════════════════
+//  MODO MISTÉRIO
+// ═══════════════════════════════════════════════════
+
+/**
+ * Inicializa o Modo Mistério:
+ * - Embaralha e seleciona 5 itens da categoria
+ * - Reseta todos os contadores
+ * - Navega para a tela de mistério e renderiza a primeira rodada
+ */
+function startMystery(){
+  mysteryItems = [...categories[currentCategory]].sort(() => Math.random() - 0.5).slice(0, 5);
+  mysteryIndex = 0;
+  mysteryScore = 0;
+  document.getElementById('mystery-live-score').textContent = 0;
+  goTo('screen-mystery');
+  renderMysteryQ();
+}
+
+/**
+ * Renderiza a rodada atual do Modo Mistério:
+ * - Atualiza label da categoria, rodada e barra de progresso
+ * - Cria blocos de letras ocultos (todos como 'blank')
+ * - Prepara opções: a correta + 5 aleatórias de todas as categorias
+ * - Revela a primeira dica automaticamente após 300ms
+ */
+function renderMysteryQ(){
+  mysteryItem = mysteryItems[mysteryIndex]; // Item da rodada atual
+  cluesShown  = 0; // Reseta contador de dicas
+
+  const total = mysteryItems.length;
+
+  // Mapa de nomes de exibição das categorias
+  const catNames = {
+    colors:'🎨 Colors', animals:'🐾 Animals', fruits:'🍎 Fruits',
+    numbers:'🔢 Numbers', shapes:'🔷 Shapes', family:'👨‍👩‍👧 Family'
+  };
+
+  // Atualiza informações de progresso
+  document.getElementById('mystery-cat-label').textContent = catNames[currentCategory] || currentCategory;
+  document.getElementById('mystery-label').textContent     = `Rodada ${mysteryIndex + 1} de ${total}`;
+  document.getElementById('mystery-progress').style.width  = ((mysteryIndex / total) * 100) + '%';
+
+  // Cria um bloco para cada letra da palavra secreta (todas ocultadas)
+  const letEl = document.getElementById('mystery-letters');
+  letEl.innerHTML = '';
+  mysteryItem.en.toUpperCase().split('').forEach((ch, i) => {
+    const div = document.createElement('div');
+    div.className = 'mystery-letter blank'; // 'blank' oculta o texto
+    div.id        = 'ml-' + i;              // ID para revelar individualmente depois
+    div.textContent = ch;                   // Letra armazenada mas invisível
+    div.style.animationDelay = (i * 0.05) + 's'; // Entrada escalonada
+    letEl.appendChild(div);
+  });
+
+  // Reseta área de dicas e botão de dica
+  document.getElementById('clue-area').innerHTML = '';
+  const clueBtn = document.getElementById('clue-btn');
+  clueBtn.disabled = false;
+  clueBtn.textContent = '💡 Próxima Dica';
+
+  // Coleta palavras erradas de TODAS as categorias (não só a atual)
+  const allWords = Object.values(categories).flat();
+  const wrongs   = allWords
+    .filter(i => i.en !== mysteryItem.en) // Exclui a correta
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 5); // Pega 5 incorretas
+
+  // Mistura incorretas + correta e embaralha
+  const options = [...wrongs, mysteryItem].sort(() => Math.random() - 0.5);
+
+  const optEl = document.getElementById('mystery-options');
+  optEl.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className   = 'mystery-opt';
+    btn.textContent = opt.emoji + ' ' + opt.en;
+    // Ao clicar, verifica se é o item correto
+    btn.onclick = () => handleMysteryAnswer(btn, opt.en === mysteryItem.en, optEl);
+    optEl.appendChild(btn);
+  });
+
+  // Revela a primeira dica automaticamente após breve pausa
+  setTimeout(revealNextClue, 300);
+}
+
+/**
+ * Revela a próxima dica da palavra secreta.
+ * Chamada pelo botão "💡 Próxima Dica" e automaticamente na primeira vez.
+ * Desativa o botão quando todas as dicas foram mostradas.
+ */
+function revealNextClue(){
+  const clues = mysteryItem.clues;
+  if(cluesShown >= clues.length){
+    document.getElementById('clue-btn').disabled = true; // Sem mais dicas
+    return;
+  }
+
+  // Cria o elemento de dica
+  const el = document.createElement('div');
+  el.className = 'clue-item'; // Começa oculto (opacity:0, translateX(-20px))
+  el.innerHTML = `<span class="clue-icon">💡</span><span>${clues[cluesShown]}</span>`;
+  document.getElementById('clue-area').appendChild(el);
+
+  // Micro-delay para disparar a transição CSS de entrada
+  setTimeout(() => el.classList.add('visible'), 50);
+
+  cluesShown++;   // Incrementa o contador de dicas
+  playClue();     // Som suave de dica
+
+  // Desativa o botão se esgotaram as dicas
+  if(cluesShown >= clues.length) document.getElementById('clue-btn').disabled = true;
+}
+
+/**
+ * Processa a resposta do jogador no Modo Mistério:
+ * - Desabilita todas as opções e o botão de dica
+ * - Revela as letras da palavra uma a uma (animação escalonada)
+ * - Calcula bônus (maior bônus = menos dicas usadas)
+ * - Mostra feedback e avança após 2s
+ *
+ * @param {HTMLElement} btn       - Botão clicado
+ * @param {boolean}     isCorrect - Se é a resposta correta
+ * @param {HTMLElement} container - Container com todas as opções
+ */
+function handleMysteryAnswer(btn, isCorrect, container){
+  // Bloqueia todas as opções imediatamente
+  container.querySelectorAll('.mystery-opt').forEach(b => b.disabled = true);
+  document.getElementById('clue-btn').disabled = true;
+
+  // Revela as letras uma a uma com delay de 80ms entre elas
+  mysteryItem.en.toUpperCase().split('').forEach((_, i) => {
+    setTimeout(() => {
+      const e = document.getElementById('ml-' + i);
+      if(e) e.classList.replace('blank', 'revealed-letter'); // Transição blank → revelada
+    }, i * 80);
+  });
+
+  // Bônus inversamente proporcional às dicas usadas:
+  // 1 dica = 30pts | 2 dicas = 22pts | 3 dicas = 14pts (mínimo 10)
+  const bonus = Math.max(10, 30 - (cluesShown - 1) * 8);
+
+  if(isCorrect){
+    btn.classList.add('correct-choice');
+    mysteryScore += bonus;
+    document.getElementById('mystery-live-score').textContent = mysteryScore;
+    playCorrect();
+    speak(mysteryItem.en); // Pronuncia a palavra descoberta
+    showFeedback('🔮', 'Descobriu!', `+${bonus} ⭐  (${cluesShown} dica${cluesShown > 1 ? 's' : ''})`, 1200);
+  } else {
+    btn.classList.add('wrong-choice');
+    // Destaca qual era a opção correta
+    container.querySelectorAll('.mystery-opt').forEach(b => {
+      if(b.textContent.includes(mysteryItem.en)) b.classList.add('correct-choice');
+    });
+    playWrong();
+    showFeedback('😅', 'Quase!', 'Era: ' + mysteryItem.en, 1200);
+  }
+
+  // Após 2s: avança para a próxima rodada ou exibe resultado
+  setTimeout(() => {
+    mysteryIndex++;
+    mysteryIndex < mysteryItems.length ? renderMysteryQ() : showMysteryResult();
+  }, 2000);
+}
+
+/**
+ * Exibe o resultado final do Modo Mistério:
+ * - Calcula percentual sobre o máximo possível (5 rodadas × 30 pts = 150)
+ * - Define mensagem conforme desempenho
+ */
+function showMysteryResult(){
+  totalStars += mysteryScore;
+  upsertRanking(); // Atualiza o ranking com a nova pontuação
+
+  const pct = mysteryScore / (mysteryItems.length * 30); // Percentual de eficiência
+
+  let emoji = '🔮', title = 'Detetive do Inglês!', msg = 'Você desvendou os mistérios!';
+  if(pct >= 0.9)  { emoji = '🏆'; title = 'Mestre dos Mistérios!'; msg = 'Incrível! Perfeito!'; }
+  else if(pct < 0.4){ emoji = '🔍'; title = 'Continue Investigando!'; msg = 'Cada dica te deixa mais esperto!'; }
+
+  showResultScreen(emoji, title, `+${mysteryScore} ⭐`, msg, mysteryScore, mysteryItems.length * 30);
+}
+
+
+// ═══════════════════════════════════════════════════
+//  TELA DE RESULTADO (compartilhada por Quiz e Mistério)
+// ═══════════════════════════════════════════════════
+
+/**
+ * Preenche e exibe a tela de resultado.
+ * @param {string} emoji  - Emoji de resultado
+ * @param {string} title  - Título (ex: 'Perfeito!')
+ * @param {string} score  - Texto de pontuação (ex: '+30 ⭐')
+ * @param {string} msg    - Mensagem motivacional
+ * @param {number} earned - Pontos ganhos nesta sessão
+ * @param {number} max    - Pontuação máxima possível
+ */
+function showResultScreen(emoji, title, score, msg, earned, max){
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  // Exibe pontuação da sessão + total acumulado
+  document.getElementById('result-score').textContent = score + '  |  Total: ' + totalStars + ' ⭐';
+  document.getElementById('result-msg').textContent   = msg;
+
+  // Calcula estrelas: ≥90% = 3, ≥50% = 2, <50% = 1
+  const pct = earned / max;
+  const sc  = pct >= 0.9 ? 3 : pct >= 0.5 ? 2 : 1;
+
+  // Renderiza as 3 estrelas com opacidade condicional + delay de animação
+  const starsEl = document.getElementById('result-stars');
+  starsEl.innerHTML = '';
+  for(let i = 0; i < 3; i++){
+    starsEl.innerHTML += `<span style="opacity:${i < sc ? 1 : 0.2};font-size:2rem;transition:opacity 0.3s;transition-delay:${i * 0.2}s">⭐</span>`;
+  }
+
+  // Preenche a barra de progresso ao 100% (final de sessão)
+  document.getElementById('progress-bar').style.width = '100%';
+
+  playVictory();
+  goTo('screen-result');
+}
+
+
+// ═══════════════════════════════════════════════════
+//  SISTEMA DE RANKING
+// ═══════════════════════════════════════════════════
+
+/**
+ * Insere ou atualiza o jogador atual no ranking e mantém apenas os 8 melhores.
+ * Se o jogador já existe (mesmo nome + avatar), atualiza a pontuação.
+ * Se não, insere um novo registro.
+ */
+function upsertRanking(){
+  const ex = ranking.find(r => r.name === playerName && r.avatar === playerAvatar);
+  if(ex) ex.score = totalStars; // Atualiza existente
+  else   ranking.push({name: playerName, avatar: playerAvatar, score: totalStars}); // Insere novo
+
+  // Ordena por pontuação (maior primeiro) e limita a 8 jogadores
+  ranking.sort((a, b) => b.score - a.score);
+  ranking = ranking.slice(0, 8);
+}
+
+/**
+ * Renderiza a lista do ranking na tela:
+ * - Usa emojis de medalha para as 8 posições
+ * - Destaca o jogador atual com fundo amarelo
+ */
+function renderRanking(){
+  const list   = document.getElementById('ranking-list');
+  list.innerHTML = '';
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣'];
+
+  ranking.slice(0, 8).forEach((r, i) => {
+    const el = document.createElement('div');
+    el.className = 'rank-item';
+
+    // Destaca o jogador atual com fundo amarelo
+    if(r.name === playerName) el.style.background = 'var(--yellow)';
+
+    el.innerHTML = `
+      <span class="rank-pos">${medals[i]}</span>
+      <span class="rank-avatar">${r.avatar || '🐻'}</span>
+      <span class="rank-name">${r.name}</span>
+      <span class="rank-score">⭐ ${r.score}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+
+// ═══════════════════════════════════════════════════
+//  POPUP DE FEEDBACK RÁPIDO
+// ═══════════════════════════════════════════════════
+
+/**
+ * Exibe brevemente um popup centralizado com emoji, texto e subtexto.
+ * Usa overlay escurecido + animação de escala CSS.
+ * @param {string} emoji - Emoji de feedback
+ * @param {string} text  - Texto principal
+ * @param {string} sub   - Subtexto (ex: '+10 ⭐')
+ * @param {number} dur   - Duração em ms antes de fechar (padrão: 900)
+ */
+function showFeedback(emoji, text, sub, dur=900){
+  document.getElementById('fbEmoji').textContent = emoji;
+  document.getElementById('fbText').textContent  = text;
+  document.getElementById('fbSub').textContent   = sub || '';
+
+  // Mostra overlay e popup adicionando classe 'show'
+  document.getElementById('fbOverlay').classList.add('show');
+  document.getElementById('fbPopup').classList.add('show');
+
+  // Remove automaticamente após 'dur' milissegundos
+  setTimeout(() => {
+    document.getElementById('fbOverlay').classList.remove('show');
+    document.getElementById('fbPopup').classList.remove('show');
+  }, dur);
+}
+
+
+// ═══════════════════════════════════════════════════
+//  UTILITÁRIOS DAS CONFIGURAÇÕES
+// ═══════════════════════════════════════════════════
+
+/**
+ * Zera a pontuação total e restaura o ranking padrão com as jogadoras de exemplo.
+ * Exibe confirmação visual via feedback.
+ */
+function resetScore(){
+  totalStars = 0;
+  ranking = [
+    {name:'Sofia',    avatar:'🦄', score:320},
+    {name:'Giovanna', avatar:'🐱', score:260},
+    {name:'Leticia',  avatar:'🐸', score:195},
+  ];
+  showFeedback('✅', 'Zerado!', '', 700);
+}
+
+</script>
+</body>
+</html>
