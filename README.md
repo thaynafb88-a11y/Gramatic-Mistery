@@ -8,9 +8,6 @@
 
 **Gramatic Mistery** é um jogo educativo web voltado para crianças aprenderem vocabulário em inglês de forma divertida. O jogador escolhe uma categoria, explora as palavras com emojis e áudio, e pode se desafiar em quizzes ou no modo especial de adivinhação por dicas.
 
-Todo o jogo roda no navegador, sem instalação, sem back-end e sem arquivos de áudio externos — os sons são gerados sinteticamente via **Web Audio API**.
-
----
 
 ## ✨ Funcionalidades
 
